@@ -1,0 +1,62 @@
+version: "2"
+
+services:
+  pxc_node1:
+    image: percona/percona-xtradb-cluster:5.7
+    container_name: pxc_node1
+    ports: 
+      - "13306:3306"
+    volumes:
+      - pxc_node1:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      CLUSTER_NAME: pxc
+    networks:
+      pxc_network:
+        ipv4_address: 172.30.0.2
+  
+  pxc_node2:
+    image: percona/percona-xtradb-cluster:5.7
+    container_name: pxc_node2
+    ports:     
+      - "13307:3306"
+    volumes:
+      - pxc_node2:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      CLUSTER_NAME: pxc
+      CLUSTER_JOIN: pxc_node1
+    networks:
+      pxc_network:
+        ipv4_address: 172.30.0.3
+    depends_on:
+      - pxc_node1
+  
+  pxc_node3:
+    image: percona/percona-xtradb-cluster:5.7
+    container_name: pxc_node3
+    ports:           
+      - "13308:3306"
+    volumes:
+      - pxc_node3:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      CLUSTER_NAME: pxc
+      CLUSTER_JOIN: pxc_node1
+    networks:
+      pxc_network:
+        ipv4_address: 172.30.0.4
+    depends_on:
+      - pxc_node1
+
+networks:
+  pxc_network:
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
+          gateway: 172.30.0.1
+
+volumes:
+  pxc_node1:
+  pxc_node2:
+  pxc_node3:
